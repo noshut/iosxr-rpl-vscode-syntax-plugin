@@ -1,0 +1,32 @@
+{
+  "name": "rpl",
+  "displayName": "IOS XR RPL",
+  "description": "Cisco IOS XR Routing Policy Language: syntax highlighting, autocomplete, snippets",
+  "version": "0.1.0",
+  "publisher": "lucas-weiselowski",
+  "license": "MIT",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages", "Snippets"],
+  "main": "./extension.js",
+  "activationEvents": ["onLanguage:rpl"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rpl",
+        "aliases": ["IOS XR RPL", "rpl"],
+        "extensions": [".rpl"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rpl",
+        "scopeName": "source.rpl",
+        "path": "./syntaxes/rpl.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      { "language": "rpl", "path": "./snippets/rpl.json" }
+    ]
+  }
+}

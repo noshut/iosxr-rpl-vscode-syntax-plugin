@@ -1,0 +1,52 @@
+{
+  "route-policy": {
+    "prefix": "route-policy",
+    "body": ["route-policy ${1:name}", "\t$0", "end-policy"],
+    "description": "route-policy block"
+  },
+  "route-policy (parameterized)": {
+    "prefix": "route-policy-param",
+    "body": ["route-policy ${1:name}(\\$${2:param})", "\t$0", "end-policy"],
+    "description": "parameterized route-policy"
+  },
+  "if-then-endif": {
+    "prefix": "if",
+    "body": ["if ${1:condition} then", "\t$0", "endif"],
+    "description": "if/then/endif block"
+  },
+  "if-then-else-endif": {
+    "prefix": "ifelse",
+    "body": ["if ${1:condition} then", "\t${2:pass}", "else", "\t${3:drop}", "endif"],
+    "description": "if/then/else/endif block"
+  },
+  "prefix-set": {
+    "prefix": "prefix-set",
+    "body": ["prefix-set ${1:name}", "\t${2:10.0.0.0/8 le 24}", "end-set"],
+    "description": "prefix-set block"
+  },
+  "as-path-set": {
+    "prefix": "as-path-set",
+    "body": ["as-path-set ${1:name}", "\tios-regex '${2:_65000\\$}'", "end-set"],
+    "description": "as-path-set with ios-regex"
+  },
+  "community-set": {
+    "prefix": "community-set",
+    "body": ["community-set ${1:name}", "\t${2:65000:100}", "end-set"],
+    "description": "community-set block"
+  },
+  "extcommunity-set rt": {
+    "prefix": "extcommunity-set",
+    "body": ["extcommunity-set rt ${1:name}", "\t${2:65000:100}", "end-set"],
+    "description": "extcommunity-set rt block"
+  },
+  "rd-set": {
+    "prefix": "rd-set",
+    "body": ["rd-set ${1:name}", "\t${2:65000:*}", "end-set"],
+    "description": "rd-set block"
+  },
+  "policy-global": {
+    "prefix": "policy-global",
+    "body": ["policy-global", "\t${1:name} '${2:value}'", "end-global"],
+    "description": "policy-global variables"
+  }
+}

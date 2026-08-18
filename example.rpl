@@ -1,0 +1,42 @@
+# Example RPL — open with the extension installed to see highlighting + completions.
+policy-global
+  glbtag '100'
+end-global
+
+prefix-set RFC1918
+  # private space incl. all subnets
+  10.0.0.0/8 ge 8,
+  172.16.0.0/12 ge 12,
+  192.168.0.0/16 ge 16
+end-set
+
+as-path-set UPSTREAMS
+  ios-regex '^65010_',
+  ios-regex '_65020$'
+end-set
+
+community-set BLACKHOLE
+  65535:666,
+  no-export
+end-set
+
+extcommunity-set rt CUST-A
+  65000:100
+end-set
+
+route-policy CUSTOMER-IN($asn)
+  if destination in RFC1918 then
+    drop
+  elseif as-path in UPSTREAMS or as-path passes-through '$asn' then
+    set local-preference 80
+    set community (65000:$asn) additive
+    pass
+  elseif community matches-any BLACKHOLE then
+    set next-hop discard
+    done
+  else
+    set med igp-cost
+    set tag $glbtag
+    apply STANDARD-OUT
+  endif
+end-policy

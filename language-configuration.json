@@ -1,0 +1,15 @@
+{
+  "comments": { "lineComment": "#" },
+  "brackets": [["(", ")"], ["[", "]"]],
+  "autoClosingPairs": [
+    { "open": "(", "close": ")" },
+    { "open": "[", "close": "]" },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] }
+  ],
+  "surroundingPairs": [["(", ")"], ["[", "]"], ["'", "'"]],
+  "wordPattern": "\\$?[A-Za-z0-9][A-Za-z0-9._-]*",
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(route-policy|prefix-set|as-path-set|community-set|extcommunity-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|policy-global)\\b|\\bthen\\s*$|^\\s*else\\s*$",
+    "decreaseIndentPattern": "^\\s*(end-policy|end-set|end-global|endif|else|elseif)\\b"
+  }
+}
