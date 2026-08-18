@@ -34,19 +34,59 @@
     "body": ["community-set ${1:name}", "\t${2:65000:100}", "end-set"],
     "description": "community-set block"
   },
+  "large-community-set": {
+    "prefix": "large-community-set",
+    "body": ["large-community-set ${1:name}", "\t${2:65000:1:100}", "end-set"],
+    "description": "large-community-set block"
+  },
   "extcommunity-set rt": {
     "prefix": "extcommunity-set",
     "body": ["extcommunity-set rt ${1:name}", "\t${2:65000:100}", "end-set"],
     "description": "extcommunity-set rt block"
+  },
+  "extcommunity-set soo": {
+    "prefix": "extcommunity-set-soo",
+    "body": ["extcommunity-set soo ${1:name}", "\t${2:65000:100}", "end-set"],
+    "description": "extcommunity-set soo block"
   },
   "rd-set": {
     "prefix": "rd-set",
     "body": ["rd-set ${1:name}", "\t${2:65000:*}", "end-set"],
     "description": "rd-set block"
   },
+  "tag-set": {
+    "prefix": "tag-set",
+    "body": ["tag-set ${1:name}", "\t${2:100}", "end-set"],
+    "description": "tag-set block"
+  },
+  "esi-set": {
+    "prefix": "esi-set",
+    "body": ["esi-set ${1:name}", "\t${2:0011.2222.3333.4444.5555}", "end-set"],
+    "description": "esi-set block (EVPN)"
+  },
+  "etag-set": {
+    "prefix": "etag-set",
+    "body": ["etag-set ${1:name}", "\t${2:100}", "end-set"],
+    "description": "etag-set block (EVPN)"
+  },
+  "mac-set": {
+    "prefix": "mac-set",
+    "body": ["mac-set ${1:name}", "\t${2:1122.3344.5566}", "end-set"],
+    "description": "mac-set block"
+  },
+  "ospf-area-set": {
+    "prefix": "ospf-area-set",
+    "body": ["ospf-area-set ${1:name}", "\t${2:0}", "end-set"],
+    "description": "ospf-area-set block"
+  },
   "policy-global": {
     "prefix": "policy-global",
     "body": ["policy-global", "\t${1:name} '${2:value}'", "end-global"],
     "description": "policy-global variables"
+  },
+  "set path-selection backup": {
+    "prefix": "path-selection-backup",
+    "body": ["set path-selection backup 1 install${1: advertise}"],
+    "description": "BGP PIC: install backup path"
   }
 }
