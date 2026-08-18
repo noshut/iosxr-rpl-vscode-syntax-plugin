@@ -24,6 +24,34 @@ extcommunity-set rt CUST-A
   65000:100
 end-set
 
+# Device-verified on IOS XR 24.3.1 — newer condition/action coverage.
+route-policy FEATURE-SHOWCASE
+  if destination is-best-path or destination longer-than (10.0.0.0/8) then
+    set path-selection backup 1 install advertise
+    set maximum-paths 8
+  elseif community length ge 3 and extcommunity rt matches-any (65000:1) then
+    set extcommunity color (1:1) additive
+    delete prefix-sid
+  elseif track WAN-CHECK is up or ospf-area is 0 then
+    add rip-metric 2
+    var globalVar1 100
+  elseif mldp opaque vpnv4 or rib-has-route async (10.1.1.0/24) then
+    set core-tree mldp-partitioned-p2mp
+    set upstream-core-tree sr-p2mp
+  elseif evpn-route-type is 5 then
+    set advertise-evpn-gw-ip use-next-hop
+  elseif large-community length le 10 or route-aggregated then
+    set label explicit-null
+    set load-balance ecmp-consistent
+    set srv6-alloc-mode per-vrf
+  elseif rd in (65000:1) or aggregate-contributor then
+    set path-selection multipath advertise multipath-protect
+    set on-demand-color 100
+  else
+    pass
+  endif
+end-policy
+
 route-policy CUSTOMER-IN($asn)
   if destination in RFC1918 then
     drop

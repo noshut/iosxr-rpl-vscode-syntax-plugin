@@ -1,9 +1,9 @@
 const vscode = require('vscode');
 const { complete } = require('./keywords');
 
-const SET_DEF_RE = /^\s*(?:route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|extcommunity-set\s+(?:rt|soo|cost|bandwidth|opaque))\s+([A-Za-z0-9][A-Za-z0-9._-]*)/gm;
+const SET_DEF_RE = /^\s*(?:route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|ospf-area-set|extcommunity-set\s+(?:rt|soo|cost|bandwidth|opaque|evpn-link-bandwidth|seg-nh))\s+([A-Za-z0-9][A-Za-z0-9._-]*)/gm;
 const PARAM_RE = /\$[A-Za-z0-9_]+/g;
-const NAME_CTX = /\b(?:in|matches-any|matches-every|matches-within|apply)\s+\(?\s*[\w.-]*$/;
+const NAME_CTX = /\b(?:in|matches-any|matches-every|matches-within|longer-than|or-longer|async|apply)\s+\(?\s*[\w.-]*$|\bset\s+(?:community|large-community|extcommunity\s+[\w-]+)\s+[\w.-]*$/;
 
 function activate(context) {
   const provider = vscode.languages.registerCompletionItemProvider(

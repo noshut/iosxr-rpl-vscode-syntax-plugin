@@ -33,14 +33,13 @@
       "name": "string.regexp.rpl"
     },
     "definition": {
-      "match": "^\\s*(route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|policy-global)\\b(?:\\s+(rt|soo|cost|bandwidth|opaque))?(?:\\s+([A-Za-z0-9][A-Za-z0-9._-]*))?|^\\s*(extcommunity-set)\\s+(rt|soo|cost|bandwidth|opaque)(?:\\s+([A-Za-z0-9][A-Za-z0-9._-]*))?",
+      "match": "^\\s*(route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|ospf-area-set|policy-global)\\b(?:\\s+([A-Za-z0-9][A-Za-z0-9._-]*))?|^\\s*(extcommunity-set)\\s+(rt|soo|cost|bandwidth|opaque|evpn-link-bandwidth|seg-nh)(?:\\s+([A-Za-z0-9][A-Za-z0-9._-]*))?",
       "captures": {
         "1": { "name": "storage.type.rpl" },
-        "2": { "name": "storage.modifier.rpl" },
-        "3": { "name": "entity.name.function.rpl" },
-        "4": { "name": "storage.type.rpl" },
-        "5": { "name": "storage.modifier.rpl" },
-        "6": { "name": "entity.name.function.rpl" }
+        "2": { "name": "entity.name.function.rpl" },
+        "3": { "name": "storage.type.rpl" },
+        "4": { "name": "storage.modifier.rpl" },
+        "5": { "name": "entity.name.function.rpl" }
       }
     },
     "control": {
@@ -48,19 +47,19 @@
       "name": "keyword.control.rpl"
     },
     "actions": {
-      "match": "\\b(set|delete|prepend|replace|remove|drop|pass|done|suppress-route|unsuppress-route)\\b",
+      "match": "\\b(set|delete|prepend|replace|remove|add|var|drop|pass|done|suppress-route|unsuppress-route)\\b",
       "name": "keyword.other.action.rpl"
     },
     "conditions": {
-      "match": "\\b(destination|as-path|community|extcommunity|large-community|local-preference|med|aigp-metric|next-hop|origin|orf|path-type|protocol|rd|rib-has-route|route-has-label|route-type|source|tag|validation-state|vpn-distinguisher|weight|label|label-mode|level|metric-type|isis-metric|ospf-metric|rib-metric|rip-metric|rip-tag|eigrp-metric|qos-group|traffic-index|dampening|administrative-distance|fallback-vrf|flow-tag|forward-class|ip-precedence|spf-priority|path-selection|core-tree|lsm-root)\\b",
+      "match": "\\b(destination-prefix|destination|as-path|community|extcommunity|large-community|local-preference|med|aigp-metric|algorithm|next-hop|origin|orf|ospf-area|path-type|protocol|rd|rib-has-route|route-has-label|route-has-vrf-ri|route-aggregated|aggregate-contributor|i-pmsi-present|route-type|source-prefix|source|tag|track|validation-state|vpn-distinguisher|weight|label-index|label-mode|label|level|metric-type|isis-metric|ospf-metric|rib-metric|rip-metric|rip-tag|eigrp-metric|qos-group|traffic-index|dampening|administrative-distance|fallback-vrf-lookup|flow-tag|forward-class|ip-precedence|spf-priority|path-selection|path-color|core-tree|downstream-core-tree|upstream-core-tree|lsm-root|advertise-evpn-gw-ip|attribute-set|c-multicast-routing|data-mdt|encapsulation-type|entropy-label|fast-reroute|flex-algo|load-balance|locator-prefix|maximum-paths|mpls|traffic-eng|attributeset|no-label-allocation|on-demand-color|prefix-sid|rpf-topology|rt-set|route-limit|s-pmsi|sfi|sr-policy-color|srv6-alloc-mode|srv6|sid-format|static-p2mp-te|esi|etag|mac|evpn-gateway|evpn-originator|evpn-route-type|mldp|opaque|root|globalVar[1-5])\\b",
       "name": "support.function.attribute.rpl"
     },
     "operators": {
-      "match": "\\b(and|or|not|in|is-empty|is-local|matches-any|matches-every|matches-within|neighbor-is|originates-from|passes-through|unique-length|length|eq|ge|le|is)\\b",
+      "match": "\\b(and|or|not|in|is-empty|is-local|is-all|is-backup-path|is-best-external|is-best-path|is-multi-path|is-multipath-protect|longer-than|or-longer|all-paths|async|matches-any|matches-every|matches-within|neighbor-is|originates-from|passes-through|unique-length|length|eq|ge|le|is)\\b",
       "name": "keyword.operator.rpl"
     },
     "constants": {
-      "match": "\\b(igp-cost|max-reachable|igp|egp|incomplete|internet|no-export|no-advertise|local-as|accept-own|graceful-shutdown|internal|external|local|type-1|type-2|level-1-2|level-1|level-2|additive|self|peer-address|discard|destination-vrf|valid|invalid|not-found|private-as|half-life|reuse|suppress|max-suppress|backdoor|multipath|bgp|ospf|isis|rip|eigrp|connected|static|subscriber|critical|flash-override|flash|immediate|priority|routine)\\b",
+      "match": "\\b(igp-cost|max-reachable|igp|egp|incomplete|internet|no-export|no-advertise|local-as|accept-own|graceful-shutdown|internal|external-reach|external|local|type-1|type-2|rib-metric-as-internal|rib-metric-as-external|level-1-2|level-1|level-2|interarea|additive|self|peer-address|discard|unchanged|ipv6-global|ipv6-linklocal|destination-vrf|use-next-hop|valid|invalid|not-found|private-as|most-recent|own-as|auto|halflife|half-life|reuse|suppress|max-suppress|others|backdoor|all|backup|best-path|group-best|multipath-protect|multipath|advertise|install|bgp|ospfv3|ospf|isis|rip|eigrp|connected|static|subscriber|pim-default|pim|ebgp|ibgp|critical|high|medium|flash-override|flash|immediate|priority|routine|explicit-null|implicit-null|per-ce|per-vrf|per-prefix|ecmp-consistent|mpls-udp|star-g|none|any|ignore|lfa|usid-f3216|up|down|unicast|multicast|topology|vrf|ingress-replication-default|ingress-replication-partitioned|ingress-replication|mldp-default|mldp-inband|mldp-partitioned-mp2mp|mldp-partitioned-p2mp|p2mp-te-default|p2mp-te-partitioned|p2mp-te|sr-p2mp|global-id|mdt|recursive-rd|recursive|static-id|vpnv4|vpnv6|ipv4|ipv6)\\b",
       "name": "constant.language.rpl"
     },
     "parameter": {
