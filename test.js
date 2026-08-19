@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { complete, CONDITIONS, SET_ATTRS, STATEMENTS, TOPLEVEL } = require('./keywords');
+const { complete, blockContext, CONDITIONS, SET_ATTRS, STATEMENTS, TOPLEVEL } = require('./keywords');
 
 for (const f of ['syntaxes/rpl.tmLanguage.json', 'snippets/rpl.json', 'package.json', 'language-configuration.json']) {
   JSON.parse(fs.readFileSync(path.join(__dirname, f), 'utf8'));
@@ -92,5 +92,31 @@ assert(labels('  prepend as-path ').join() === 'most-recent,own-as', 'prepend as
 assert(labels('  replace as-path ').join() === 'all,private-as', 'replace as-path values');
 assert(labels('  replace as-path all ').join() === 'auto,none', 'replace as-path all values');
 assert(complete('if destination in FOO then pass').length === 0, 'mid-statement: nothing');
+
+// block context detection
+assert.equal(blockContext('route-policy FOO\n'), 'route-policy');
+assert.equal(blockContext('route-policy FOO\nend-policy\n'), null);
+assert.equal(blockContext('community-set CS\n'), 'community-set');
+assert.equal(blockContext('extcommunity-set rt MY-RT\n'), 'extcommunity-set rt');
+assert.equal(blockContext('prefix-set P\nend-set\ncommunity-set CS\n'), 'community-set');
+assert.equal(blockContext('policy-global\n'), 'policy-global');
+assert.equal(blockContext(''), null);
+
+// block-scoped completion
+const inBlock = (block, prefix) => complete(prefix, block).map((i) => i.label);
+assert(inBlock('route-policy', '  ').includes('set'), 'route-policy body offers statements');
+assert(!inBlock('route-policy', '  ').includes('prefix-set'), 'route-policy body hides toplevel');
+assert(inBlock(null, '').includes('prefix-set'), 'toplevel offers set definitions');
+assert(!inBlock(null, '').includes('drop'), 'toplevel hides statements');
+assert(inBlock('community-set', '  ').includes('no-export'), 'community-set well-knowns');
+assert(inBlock('community-set', '  ').includes('local-AS'), 'community-set local-AS');
+assert(inBlock('community-set', '  ').includes('ios-regex'), 'community-set ios-regex');
+assert(inBlock('as-path-set', '  ').includes('passes-through'), 'as-path-set elements');
+assert(inBlock('as-path-set', '  length ').join() === 'eq,ge,le,is', 'as-path-set length comparators');
+assert(inBlock('prefix-set', '  10.0.0.0/8 ').join() === 'ge,le,eq', 'prefix-set ge/le/eq');
+assert(inBlock('prefix-set', '  2001:db8::/32 ').join() === 'ge,le,eq', 'prefix-set v6 ge/le/eq');
+assert(inBlock('extcommunity-set rt', '  ').includes('dfa-regex'), 'extcommunity-set rt regex elems');
+assert(inBlock('rd-set', '  ').length === 0, 'rd-set body: plain values');
+assert(inBlock('community-set', '  if ').length === 0, 'no conditions inside set bodies');
 
 console.log('ok');

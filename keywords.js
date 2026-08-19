@@ -319,21 +319,106 @@ const ENUM_AFTER = [
   [/\bcommunity\s+[\w-]*$/, ['in', 'is-empty', 'length', 'matches-any', 'matches-every', 'matches-within']],
 ];
 
+// --- set-block bodies ---------------------------------------------------
+
+// Elements offerable at the start of a line inside each set block.
+const REGEX_ELEMS = [
+  ['ios-regex', "ios-regex '<POSIX regex>'", "ios-regex '${1:_65000\\$}'"],
+  ['dfa-regex', "dfa-regex '<DFA regex>' — faster, no backreferences", "dfa-regex '${1:_65000\\$}'"],
+];
+
+const SET_BODY = {
+  'prefix-set': [],  // addresses; ge/le/eq handled via BLOCK_ENUMS
+  'as-path-set': [
+    ...REGEX_ELEMS,
+    ['length', 'length <eq|ge|le|is> <number>', 'length ${1|eq,ge,le,is|} ${2:number}'],
+    ['unique-length', 'unique-length <eq|ge|le|is> <number>', 'unique-length ${1|eq,ge,le,is|} ${2:number}'],
+    ['neighbor-is', "neighbor-is '<asn> [asn...]'", "neighbor-is '${1:asn}'"],
+    ['originates-from', "originates-from '<asn>'", "originates-from '${1:asn}'"],
+    ['passes-through', "passes-through '<asn>'", "passes-through '${1:asn}'"],
+  ],
+  'community-set': [
+    ...REGEX_ELEMS,
+    ['internet', 'well-known: 0:0'],
+    ['local-AS', 'well-known: no-export-subconfed (65535:65283)'],
+    ['no-advertise', 'well-known: 65535:65282'],
+    ['no-export', 'well-known: 65535:65281'],
+    ['graceful-shutdown', 'well-known: 65535:0'],
+    ['accept-own', 'well-known: 65535:1 (RFC 7611)'],
+  ],
+  'large-community-set': [...REGEX_ELEMS],
+  'extcommunity-set rt': [...REGEX_ELEMS],
+  'extcommunity-set soo': [...REGEX_ELEMS],
+  'extcommunity-set cost': [],
+  'extcommunity-set bandwidth': [],
+  'extcommunity-set opaque': [],
+  'extcommunity-set seg-nh': [],
+  'extcommunity-set evpn-link-bandwidth': [],
+  'rd-set': [],
+  'tag-set': [],
+  'esi-set': [],
+  'etag-set': [],
+  'mac-set': [],
+  'ospf-area-set': [],
+  'policy-global': [],
+};
+
+// Per-block in-line enums, same shape as ENUM_AFTER.
+const BLOCK_ENUMS = {
+  'prefix-set': [
+    // after "<prefix> " (v4 or v6, optional /len) and any ge/le/eq pairs
+    [/[\d.:A-Fa-f]+(?:\/\d+)?\s+(?:(?:ge|le|eq)\s+\d+\s+)*\w*$/, ['ge', 'le', 'eq']],
+  ],
+  'as-path-set': [
+    [/\b(?:length|unique-length)\s+\w*$/, ['eq', 'ge', 'le', 'is']],
+  ],
+};
+
+// Which set/policy block encloses the end of `text` (everything above the
+// current line). Returns e.g. 'route-policy', 'community-set',
+// 'extcommunity-set rt', 'policy-global' — or null at top level.
+const BLOCK_OPEN_RE = /^\s*(route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|ospf-area-set|policy-global|extcommunity-set\s+(?:rt|soo|cost|bandwidth|opaque|evpn-link-bandwidth|seg-nh))\b/;
+const BLOCK_CLOSE_RE = /^\s*(?:end-set|end-policy|end-global)\b/;
+
+function blockContext(text) {
+  const lines = text.split('\n');
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (BLOCK_CLOSE_RE.test(lines[i])) return null;
+    const m = lines[i].match(BLOCK_OPEN_RE);
+    if (m) return m[1].replace(/\s+/g, ' ');
+  }
+  return null;
+}
+
 // Condition context: after if/elseif or a boolean operator.
 const CONDITION_CTX = /\b(?:if|elseif|and|or|not)\s+(?:\(\s*)?[\w-]*$|\(\s*[\w-]*$/;
 
 // Returns [{label, detail?, snippet?}] for a given line prefix.
-function complete(linePrefix) {
+// `block` (from blockContext) scopes the suggestions; omitted = legacy
+// behavior (statements + toplevel mixed at line start).
+function complete(linePrefix, block) {
   const items = (list) => list.map(([label, detail, snippet]) => ({ label, detail, snippet }));
   const words = (list) => list.map((w) => ({ label: w }));
+
+  if (block && block !== 'route-policy') {
+    for (const [re, values] of BLOCK_ENUMS[block] || []) {
+      if (re.test(linePrefix)) return words(values);
+    }
+    if (/^\s*[\w-]*$/.test(linePrefix)) return items(SET_BODY[block] || []);
+    return [];
+  }
 
   for (const [re, values] of ENUM_AFTER) {
     if (re.test(linePrefix)) return words(values);
   }
   if (/\bset\s+[\w-]*$/.test(linePrefix)) return items(SET_ATTRS);
   if (CONDITION_CTX.test(linePrefix)) return items(CONDITIONS);
-  if (/^\s*[\w-]*$/.test(linePrefix)) return items(STATEMENTS).concat(items(TOPLEVEL));
+  if (/^\s*[\w-]*$/.test(linePrefix)) {
+    if (block === 'route-policy') return items(STATEMENTS);
+    if (block === null) return items(TOPLEVEL);
+    return items(STATEMENTS).concat(items(TOPLEVEL));
+  }
   return [];
 }
 
-module.exports = { CONDITIONS, SET_ATTRS, STATEMENTS, TOPLEVEL, ENUM_AFTER, complete };
+module.exports = { CONDITIONS, SET_ATTRS, STATEMENTS, TOPLEVEL, ENUM_AFTER, SET_BODY, BLOCK_ENUMS, blockContext, complete };

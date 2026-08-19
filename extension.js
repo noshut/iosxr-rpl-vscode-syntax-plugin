@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const { complete } = require('./keywords');
+const { complete, blockContext } = require('./keywords');
 
 const SET_DEF_RE = /^\s*(?:route-policy|prefix-set|as-path-set|community-set|large-community-set|rd-set|tag-set|esi-set|etag-set|mac-set|ospf-area-set|extcommunity-set\s+(?:rt|soo|cost|bandwidth|opaque|evpn-link-bandwidth|seg-nh))\s+([A-Za-z0-9][A-Za-z0-9._-]*)/gm;
 const PARAM_RE = /\$[A-Za-z0-9_]+/g;
@@ -11,9 +11,11 @@ function activate(context) {
     {
       provideCompletionItems(document, position) {
         const linePrefix = document.lineAt(position).text.slice(0, position.character);
+        const textAbove = document.getText(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(position.line, 0)));
+        const block = blockContext(textAbove);
         const out = [];
 
-        for (const { label, detail, snippet } of complete(linePrefix)) {
+        for (const { label, detail, snippet } of complete(linePrefix, block)) {
           const kind = snippet
             ? vscode.CompletionItemKind.Snippet
             : vscode.CompletionItemKind.Keyword;

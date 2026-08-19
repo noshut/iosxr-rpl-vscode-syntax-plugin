@@ -18,6 +18,11 @@ autocomplete, snippets.
     `delete extcommunity` subtypes, `add`/`var` targets, …
   - after `in` / `matches-any` / `longer-than` / `apply` / `set community` →
     set & policy names defined in the file
+  - **block-aware**: statements only inside `route-policy`, set definitions only
+    at top level; inside set bodies → element completions (well-known
+    communities like `no-export`/`local-AS`/`graceful-shutdown` in
+    `community-set`, `ios-regex`/`dfa-regex`, `length`/`neighbor-is`/… in
+    `as-path-set`, `ge|le|eq` after prefixes in `prefix-set`)
   - `$parameters` collected from the file
 - **Snippets**: `route-policy`, `if`, `ifelse`, all set types (`prefix-set`,
   `community-set`, `large-community-set`, `as-path-set`, `extcommunity-set`,
